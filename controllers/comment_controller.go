@@ -81,3 +81,29 @@ func GetCommentsByThread(context *gin.Context) {
 
 	context.JSON(http.StatusOK, enrichedComments)
 }
+
+func DeleteComment(context *gin.Context) {
+	commentID := context.Param("id")
+
+	// Fetch the comment to verify ownership
+	var comment models.Comment
+	if err := database.DB.First(&comment, commentID).Error; err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": "Comment not found"})
+		return
+	}
+
+	// Verify the user is the owner of the comment
+	userID, exists := context.Get("user_id")
+	if !exists || comment.UserID != userID.(uint) {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized to delete this comment"})
+		return
+	}
+
+	// Delete the comment
+	if err := database.DB.Delete(&comment).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete comment"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Comment deleted successfully"})
+}

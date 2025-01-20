@@ -186,3 +186,29 @@ func GetThreadByID(context *gin.Context) {
 
 	context.JSON(http.StatusOK, enrichedThread)
 }
+
+func DeleteThread(context *gin.Context) {
+	threadID := context.Param("id")
+
+	// Fetch the thread to verify ownership
+	var thread models.Thread
+	if err := database.DB.First(&thread, threadID).Error; err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": "Thread not found"})
+		return
+	}
+
+	// Verify the user is the owner of the thread
+	userID, exists := context.Get("user_id")
+	if !exists || thread.UserID != userID.(uint) {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized to delete this thread"})
+		return
+	}
+
+	// Delete the thread
+	if err := database.DB.Delete(&thread).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete thread"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Thread deleted successfully"})
+}

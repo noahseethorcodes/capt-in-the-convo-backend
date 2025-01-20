@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -41,7 +40,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			fmt.Println(token)
 			context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			context.Abort()
 			return
