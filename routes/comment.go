@@ -16,6 +16,7 @@ func CommentRoutes(router *gin.Engine) {
 	protected.Use(middleware.AuthMiddleware()) // Protect these routes with authentication
 	{
 		protected.POST("", controllers.CreateComment)
+		protected.DELETE("/:id", controllers.DeleteComment)
 	}
 
 }
