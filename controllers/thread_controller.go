@@ -75,6 +75,7 @@ func GetThreads(context *gin.Context) {
 	var threads []models.Thread
 	tags := context.QueryArray("tag") // Retrieve multiple `tag` parameters
 	userID := context.Query("user_id")
+	searchQuery := context.Query("search")
 
 	query := database.DB.Preload("Tags", "is_active = ?", true)
 
@@ -89,6 +90,14 @@ func GetThreads(context *gin.Context) {
 	if userID != "" {
 		query = query.Where("user_id = ?", userID)
 	}
+
+	// Filter by search query if provided
+	if searchQuery != "" {
+		query = query.Where("title ILIKE ? OR content ILIKE ?", "%"+searchQuery+"%", "%"+searchQuery+"%")
+	}
+
+	// Order by recency (most recent first)
+	query = query.Order("created_at DESC")
 
 	// Fetch threads
 	if err := query.Find(&threads).Error; err != nil {
