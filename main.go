@@ -4,10 +4,20 @@ import (
 	"captintheconvo-backend/database"
 	"captintheconvo-backend/models"
 	"captintheconvo-backend/routes"
+	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
+
+func init() {
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+}
 
 func main() {
 	// Connect to the database

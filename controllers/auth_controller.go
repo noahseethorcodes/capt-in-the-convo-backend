@@ -4,6 +4,7 @@ import (
 	"captintheconvo-backend/database"
 	"captintheconvo-backend/models"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var secretKey = "your_secret_key" // Replace with your actual secret key
+var secretKey = os.Getenv("SECRET_KEY") // Replace with your actual secret key
 
 func Register(context *gin.Context) {
 	var input struct {
