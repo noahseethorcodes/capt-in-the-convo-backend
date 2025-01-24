@@ -16,8 +16,9 @@ func ThreadRoutes(router *gin.Engine) {
 
 	// Protected routes for thread creation
 	protected := router.Group("/threads")
-	protected.Use(middleware.AuthMiddleware()) // Apply JWT authentication only to these routes
+	protected.Use(middleware.AuthMiddleware()) // Protect these routes with authentication
 	{
-		protected.POST("/", controllers.CreateThread)
+		protected.POST("", controllers.CreateThread)
+		protected.DELETE("/:id", controllers.DeleteThread)
 	}
 }

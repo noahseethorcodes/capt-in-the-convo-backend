@@ -75,6 +75,7 @@ func GetThreads(context *gin.Context) {
 	var threads []models.Thread
 	tags := context.QueryArray("tag") // Retrieve multiple `tag` parameters
 	userID := context.Query("user_id")
+	searchQuery := context.Query("search")
 
 	query := database.DB.Preload("Tags", "is_active = ?", true)
 
@@ -89,6 +90,14 @@ func GetThreads(context *gin.Context) {
 	if userID != "" {
 		query = query.Where("user_id = ?", userID)
 	}
+
+	// Filter by search query if provided
+	if searchQuery != "" {
+		query = query.Where("title ILIKE ? OR content ILIKE ?", "%"+searchQuery+"%", "%"+searchQuery+"%")
+	}
+
+	// Order by recency (most recent first)
+	query = query.Order("created_at DESC")
 
 	// Fetch threads
 	if err := query.Find(&threads).Error; err != nil {
@@ -185,4 +194,30 @@ func GetThreadByID(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, enrichedThread)
+}
+
+func DeleteThread(context *gin.Context) {
+	threadID := context.Param("id")
+
+	// Fetch the thread to verify ownership
+	var thread models.Thread
+	if err := database.DB.First(&thread, threadID).Error; err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": "Thread not found"})
+		return
+	}
+
+	// Verify the user is the owner of the thread
+	userID, exists := context.Get("user_id")
+	if !exists || thread.UserID != userID.(uint) {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized to delete this thread"})
+		return
+	}
+
+	// Delete the thread
+	if err := database.DB.Delete(&thread).Error; err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete thread"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Thread deleted successfully"})
 }
