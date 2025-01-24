@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: go-backend
+    env: go
+    buildCommand: "go build -o backend main.go"
+    startCommand: "./backend"
+    plan: free
