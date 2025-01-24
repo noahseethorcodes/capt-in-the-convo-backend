@@ -6,7 +6,6 @@ import (
 	"captintheconvo-backend/routes"
 	"log"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -33,14 +32,6 @@ func main() {
 
 	// Create a router
 	router := gin.Default()
-
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"*"}, // Allow all headers for simplicity
-		ExposeHeaders:    []string{"Content-Length", "Authorization"},
-		AllowCredentials: true,
-	}))
 
 	// Register routes
 	routes.AuthRoutes(router)
