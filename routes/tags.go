@@ -9,6 +9,6 @@ import (
 func TagRoutes(router *gin.Engine) {
 	tags := router.Group("/tags")
 	{
-		tags.GET("/", controllers.GetAllTags)
+		tags.GET("", controllers.GetAllTags)
 	}
 }
