@@ -50,6 +50,7 @@ func main() {
 	routes.AdminRoutes(router)
 	routes.CommentRoutes(router)
 	routes.TagRoutes(router)
+	routes.PingRoute(router)
 
 	host := os.Getenv("APP_HOST") // Render sets the PORT environment variable
 	if host == "" {
